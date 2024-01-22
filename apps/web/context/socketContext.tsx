@@ -25,17 +25,26 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		}
 	}, [socket])
 
+	const onMessageRec = useCallback((message: string) => {
+		console.log("From server message recived:", message)
+	}, [])
+
+
 	useEffect(() => {
 		const _socket = io("http://localhost:8000")
 
+		_socket.on("message", onMessageRec)
+
 		_socket.on("connect_error", (error) => {
 			console.error("Connection error", error)
+
 		})
 
 		setSocket(_socket)
 
 		return () => {
 			_socket.disconnect()
+			_socket.off("message", onMessageRec)
 			setSocket(undefined)
 		}
 	}, [])
@@ -45,3 +54,4 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 		</SocketContext.Provider>
 	)
 }
+

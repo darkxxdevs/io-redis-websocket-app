@@ -3,11 +3,13 @@ import Redis from "ioredis"
 
 const pub = new Redis({
 	host: 'redis-1bb8d00-some-project.a.aivencloud.com',
-	port: 20760,
+	port: 20759,
 	username: 'default',
 	password: 'AVNS_NWEtZ58J-UL_D6LK6A5'
 })
-const sub = new Redis()
+const sub = new Redis(
+
+)
 
 class SocketService {
 	private _io: Server
@@ -31,12 +33,18 @@ class SocketService {
 
 			socket.on("event:message", async ({ message }: { message: string }) => {
 				console.log("New message recived", message)
-				await pub.publish("MESSAGE", message)
+				await pub.publish("MESSAGES", JSON.stringify({ message }))
 			})
 
 			socket.on("disconnect", async () => {
 				console.log("Socket disconnected!")
 			})
+		})
+
+		sub.on("message", (channel, message) => {
+			if (channel == "MESSAGES") {
+				io.emit("message", message)
+			}
 		})
 	}
 
