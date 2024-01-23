@@ -7,9 +7,12 @@ const pub = new Redis({
 	username: 'default',
 	password: 'AVNS_NWEtZ58J-UL_D6LK6A5'
 })
-const sub = new Redis(
-
-)
+const sub = new Redis({
+	host: 'redis-1bb8d00-some-project.a.aivencloud.com',
+	port: 20759,
+	username: 'default',
+	password: 'AVNS_NWEtZ58J-UL_D6LK6A5'
+})
 
 class SocketService {
 	private _io: Server
@@ -23,6 +26,7 @@ class SocketService {
 				}
 			}
 		)
+		sub.subscribe("MESSAGES")
 	}
 
 	public initListeners() {
@@ -43,6 +47,7 @@ class SocketService {
 
 		sub.on("message", (channel, message) => {
 			if (channel == "MESSAGES") {
+				console.log("Message emitted!.....")
 				io.emit("message", message)
 			}
 		})
