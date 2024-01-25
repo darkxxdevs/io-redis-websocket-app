@@ -1,17 +1,19 @@
 import { Server } from "socket.io"
 import Redis from "ioredis"
+import prismaClient from "./prisma"
+
 
 const pub = new Redis({
-	host: process.env.REDIS_CLOUD_HOST,
-	port: Number(process.env.REDIS_CLOUD_PORT),
-	username: process.env.REDIS_CLOUD_USERNAME,
-	password: process.env.REDIS_CLOUD_PASSWORD
+	host: "",
+	port: 0,
+	username: "",
+	password: ""
 })
 const sub = new Redis({
-	host: process.env.REDIS_CLOUD_HOST,
-	port: Number(process.env.REDIS_CLOUD_PORT),
-	username: process.env.REDIS_CLOUD_USERNAME,
-	password: process.env.REDIS_CLOUD_PASSWORD
+	host: "",
+	port: 0,
+	username: "",
+	password: ""
 })
 
 class SocketService {
@@ -45,10 +47,15 @@ class SocketService {
 			})
 		})
 
-		sub.on("message", (channel, message) => {
+		sub.on("message", async (channel, message) => {
 			if (channel == "MESSAGES") {
 				console.log("Message emitted!.....")
 				io.emit("message", message)
+				await prismaClient.messages.create({
+					data: {
+						text: message
+					}
+				})
 			}
 		})
 	}
